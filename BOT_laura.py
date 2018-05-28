@@ -1,44 +1,75 @@
 import discord
+import random
+from discord.ext import commands
 
 TOKEN = 'NDUwNDk1NDE2NzU3MTI1MTMx.De0NbA.qfwYZoomqN8TJgSPSxdvp3zmcBs'
 
-client = discord.Client()
+bot = commands.Bot(command_prefix='!', description='I am Laura, except a bot.')
+bot.remove_command('help')
+insults = ['ur mum', 'dumb cunt', 'ill eat ur dog', 'oi fuck u too m8', 
+'shut up old hag', 'suck my nonexistent saggy weiner', 'go to school kid',
+'u 18 yet kid?', 'https://media.giphy.com/media/l4Fsly71gEOtGvLQA/giphy.gif']
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        return
-
-    if message.content.startswith('!HELLO'):
-        if message.author.name == 'Villucian':
-            msg = 'love u beeb'.format(message)
-        elif message.author.name == 'laura':
-            msg = 'hey it me :egg: '.format(message)
-        else:
-            msg = 'Hello {0.author.mention}'.format(message)
-        await client.send_message(message.channel, msg)
-    elif message.content.startswith('!PING'):
-        userID = message.author.id
-        await client.send_message(message.channel, "<@%s> Pong!" % (userID))
-
-@client.event
+@bot.event
 async def on_ready():
     print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
+    print(bot.user.name)
+    print(bot.user.id)
     print('------')
 
-@client.command()
-async def help(ctx):
-    embed = discord.Embed(title="nice bot", description="A Very Nice bot. List of commands are:", color=0xeee657)
+@bot.command(pass_context = True)
+async def hello(ctx):
+    member = ctx.message.author
 
-    embed.add_field(name="$add X Y", value="Gives the addition of **X** and **Y**", inline=False)
-    embed.add_field(name="$multiply X Y", value="Gives the multiplication of **X** and **Y**", inline=False)
-    embed.add_field(name="$greet", value="Gives a nice greet message", inline=False)
-    embed.add_field(name="$cat", value="Gives a cute cat gif to lighten up the mood.", inline=False)
-    embed.add_field(name="$info", value="Gives a little info about the bot", inline=False)
-    embed.add_field(name="$help", value="Gives this message", inline=False)
+    if member.name == 'Villucian':
+        string = 'love u beeb'
+    elif member.name == 'laura':
+        string = 'hey it me :egg: '
+    else:
+        string = 'hey {0.joined_at} waddup'.format(member)
+    await ctx.send(string)
+
+@bot.command()
+async def cat(ctx):
+    await ctx.send("https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif")
+
+@bot.command()
+async def info(ctx):
+    embed = discord.Embed(title="BOT laura", description="Timid bot.", color=0xeee657)
+    
+    # give info about you here
+    embed.add_field(name="Author", value="laura")
+    
+    # Shows the number of servers the bot is member of.
+    embed.add_field(name="Server count", value=f"{len(bot.guilds)}")
+
+    # give users a link to invite thsi bot to their server
+    # embed.add_field(name="Invite", value="[Invite link](<insert your OAuth invitation link here>)")
 
     await ctx.send(embed=embed)
 
-client.run(TOKEN)
+@bot.command()
+async def commands(ctx):
+    embed = discord.Embed(title="BOT laura", description="Shy bot. List of commands are:", color=0xeee657)
+    embed.add_field(name="!hello", value="Gives a nice greet message", inline=False)
+    embed.add_field(name="!cat", value="Gives a cute cat gif to lighten up the mood.", inline=False)
+    embed.add_field(name="!info", value="Gives a little info about the bot", inline=False)
+    embed.add_field(name="!commands", value="Gives this message", inline=False)
+    embed.add_field(name="!joined", value="Gives the time the member joined", inline=False)
+    embed.add_field(name="!fucku", value="try me bich", inline=False)
+
+    await ctx.send(embed=embed)
+
+@bot.command(pass_context=True)
+async def joined(ctx, member: discord.Member = None):
+    if member is None:
+        member = ctx.message.author
+
+    await ctx.send('{0} joined at {0.joined_at}'.format(member))
+
+@bot.command()
+async def fucku(ctx):
+    comeback = insults[random.randint(0,len(insults) - 1)]
+    await ctx.send(comeback)
+
+bot.run(TOKEN)
